@@ -1,0 +1,58 @@
+_schema-version: "3.2"
+ID: shipqi
+description: A Fiori application.
+version: 0.0.1
+modules:
+- name: shipqi-app-content
+  type: com.sap.application.content
+  path: .
+  requires:
+  - name: shipqi-html5-repo-host
+    parameters:
+      content-target: true
+  build-parameters:
+    build-result: resources
+    requires:
+    - artifacts:
+      - shipqi.zip
+      name: shipqi
+      target-path: resources/
+- name: shipqi
+  type: html5
+  path: .
+  build-parameters:
+    build-result: dist
+    builder: custom
+    commands:
+    - npm install
+    - npm run build:cf
+    supported-platforms: []
+- name: shipqi-approuter
+  type: approuter.nodejs
+  path: shipqi-approuter
+  requires:
+  - name: shipqi_html_repo_runtime
+  parameters:
+    disk-quota: 256M
+    memory: 256M
+- name: shipqi_ui_deployer
+  type: com.sap.application.content
+  path: .
+  requires:
+  - name: shipqi-html5-repo-host
+    parameters:
+      content-target: true
+resources:
+- name: shipqi-html5-repo-host
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-plan: app-host
+- name: shipqi_html_repo_runtime
+  type: org.cloudfoundry.managed-service
+  parameters:
+    service: html5-apps-repo
+    service-plan: app-runtime
+parameters:
+  deploy_mode: html5-repo
+  enable-parallel-deployments: true
